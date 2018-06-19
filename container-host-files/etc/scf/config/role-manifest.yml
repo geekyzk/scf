@@ -2316,7 +2316,7 @@ configuration:
       value_type: certificate
       subject_names:
       - "*.{{.DOMAIN}}"
-    description: The public ssl cert for ssl termination.
+    description: The public ssl cert for ssl termination. Will be ignored if ROUTER_TLS_PEM is set.
     required: true
   - name: ROUTER_SSL_KEY
     secret: true
@@ -2324,7 +2324,7 @@ configuration:
       id: router_cert
       type: Certificate
       value_type: private_key
-    description: The private ssl key for ssl termination.
+    description: The private ssl key for ssl termination. Will be ignored if ROUTER_TLS_PEM is set.
     required: true
   - name: ROUTER_STATUS_PASSWORD
     secret: true
@@ -2333,6 +2333,9 @@ configuration:
       type: Password
     description: Password for HTTP basic auth to the varz/status endpoint.
     required: true
+  - name: ROUTER_TLS_PEM
+    description: Structured list of router certs and keys. This setting overrides ROUTER_SSL_CERT and ROUTER_SSL_KEY.
+    secret: true
   - name: SCF_LOG_HOST
     internal: true
     description: The log destination to talk to. This has to point to a syslog server.
@@ -2804,7 +2807,7 @@ configuration:
     properties.router.logging_level: '"((GO_LOG_LEVEL))((#LOG_LEVEL))((/LOG_LEVEL))"'
     properties.router.route_services_secret: '"((ROUTER_SERVICES_SECRET))"'
     properties.router.status.password: '"((ROUTER_STATUS_PASSWORD))"'
-    properties.router.tls_pem: '[{cert_chain: "((ROUTER_SSL_CERT))", private_key: "((ROUTER_SSL_KEY))"}]'
+    properties.router.tls_pem: '((#ROUTER_TLS_PEM))((ROUTER_TLS_PEM))((/ROUTER_TLS_PEM))((^ROUTER_TLS_PEM))[{cert_chain: "((ROUTER_SSL_CERT))", private_key: "((ROUTER_SSL_KEY))"}]((/ROUTER_TLS_PEM))'
     properties.routing_api.locket.api_location: '"diego-locket.((KUBERNETES_NAMESPACE)):8891"'
     properties.routing_api.locket.ca_cert: '"((INTERNAL_CA_CERT))"'
     properties.routing_api.locket.client_cert: '"((DIEGO_CLIENT_CERT))"'
