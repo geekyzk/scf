@@ -15,8 +15,7 @@ cd "${GIT_ROOT}"
 . make/include/secrets
 
 # Argument? (**)
-RELEASE=$(helm list --date --reverse --max 1 --namespace "${NAMESPACE}" -q | tail -n 1)
-echo Upgrading ${NAMESPACE} release \"${RELEASE}\" ...
+echo Upgrading ${NAMESPACE} release \"${NAMESPACE}\" ...
 
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run start
 stampy "${GIT_ROOT}/scf_metrics.csv" "$0" make-run::upgrade start
@@ -38,15 +37,16 @@ source "${NETWORK_ENV}"
 
 UAA_CA_CERT="$(get_secret "${UAA_NAMESPACE}" "uaa" "INTERNAL_CA_CERT")"
 
-helm upgrade ${RELEASE} output/helm \
-    --namespace ${NAMESPACE} \
+helm upgrade "${NAMESPACE}" output/helm \
+    --name "${NAMESPACE}" \
+    --namespace "${NAMESPACE}" \
     --set "env.DOMAIN=${DOMAIN}" \
     --set "env.TCP_DOMAIN=${TCP_DOMAIN}" \
     --set "env.UAA_HOST=${UAA_HOST}" \
     --set "env.UAA_PORT=${UAA_PORT}" \
     --set "kube.auth=rbac" \
     --set "kube.external_ips[0]=192.0.2.42" \
-    --set "kube.external_ips[1]=$(dig +short ${DOMAIN})" \
+    --set "kube.external_ips[1]=$(dig +short "${DOMAIN}")" \
     --set "secrets.CLUSTER_ADMIN_PASSWORD=$CLUSTER_ADMIN_PASSWORD" \
     --set "secrets.UAA_ADMIN_CLIENT_SECRET=${UAA_ADMIN_CLIENT_SECRET}" \
     --set "secrets.UAA_CA_CERT=${UAA_CA_CERT}" \
